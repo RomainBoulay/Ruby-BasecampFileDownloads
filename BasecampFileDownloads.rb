@@ -1,6 +1,6 @@
-# @Author : Romain Boulay
-# @Date : 01/2013
-# @Link : romainboulay.com
+# @Author   : Romain Boulay
+# @Date     : 01/2013
+# @Link     : http://romainboulay.com
 
 
 class BasecampFileDownloads
@@ -13,14 +13,15 @@ class BasecampFileDownloads
     require 'progressbar'
     require 'highline/import'
     
-    attr_accessor :client, :results, :doc, :host, :username, :password
+    attr_accessor :host, :domain, :username, :password
     
     
     def initialize
         @host = ask("Basecamp URL: ")
         @host.gsub!("https://", "")
         @host.gsub!("http://", "")
-
+        @domain = "https://#{@host}"
+        
         @username = ask("Username: ")
         @password = ask("Password: ") {|q| q.echo = false} # Hide the password
         
@@ -29,22 +30,17 @@ class BasecampFileDownloads
     
     
     def file_listings(project_id, num)
-        #@client = HTTPClient.new(:agent_name=>"Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US; rv:1.9.1.2) Gecko/20090729 Firefox/3.5.2")
-        @client = HTTPClient.new()
-        
-        domain = "https://#{@host}"
-        user = "#{@username}"
-        password = "#{@password}"
-        client.set_auth(domain, user, password)
+        client = HTTPClient.new()
+        client.set_auth(@domain, @username, @password)
         
         if num then
-            @results = client.get_content("https://#{@username}:#{@password}@#{@host}/projects/#{project_id}/attachments.xml?n=#{num}")
+            results = client.get_content("https://#{@username}:#{@password}@#{@host}/projects/#{project_id}/attachments.xml?n=#{num}")
             else
-            @results = client.get_content("https://#{@username}:#{@password}@#{@host}/projects/#{project_id}/attachments.xml")
+            results = client.get_content("https://#{@username}:#{@password}@#{@host}/projects/#{project_id}/attachments.xml")
         end
         
-        @doc = Hpricot::XML(@results)
-        return (@doc/"download-url").map{|f| f.inner_html}
+        doc = Hpricot::XML(results)
+        return (doc/"download-url").map{|f| f.inner_html}
     end
     
     
@@ -69,13 +65,8 @@ class BasecampFileDownloads
     end
     
     
-    def get_projects
-        Basecamp::Project.find(:all)
-    end
-    
-    
     def download_files
-        get_projects.each do |project|
+        Basecamp::Project.find(:all).each do |project|
             puts "**********  downloading project: #{project.name}"
             download_files_in_project(project, project.id)
         end
@@ -84,7 +75,7 @@ class BasecampFileDownloads
     
     def download(srcPath, destPath)
         # Set up connection, explicitly set SSL
-        uri = URI.parse("https://#{@host}")
+        uri = URI.parse(@domain)
         http = Net::HTTP.new(uri.host, 443)
         http.use_ssl = true
         
