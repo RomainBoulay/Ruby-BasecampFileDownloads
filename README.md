@@ -17,13 +17,13 @@ Launch
 
 Then follow the prompt :
 
-![Steps](http://i.imgur.com/A3atChD.png "Steps")
+![Steps](Steps.png "Steps")
 
 
 Result
 -------------
 
-![Result](http://i.imgur.com/7WaBkNq.png "Result")
+![Result](Result.png "Result")
 
 
 Licence
