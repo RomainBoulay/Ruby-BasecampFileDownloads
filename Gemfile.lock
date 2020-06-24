@@ -42,7 +42,7 @@ GEM
       multi_xml (~> 0.5)
       rack (>= 1.2, < 3)
     progressbar (1.10.0)
-    rack (2.0.8)
+    rack (2.2.3)
     thread_safe (0.3.6)
     tzinfo (1.2.7)
       thread_safe (~> 0.1)
